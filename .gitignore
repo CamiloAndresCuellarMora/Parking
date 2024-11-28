@@ -1,162 +1,66 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+#task 2
+from datetime import datetime
 
-# C extensions
-*.so
+def parking_fare(in_, out_):
+    in_ = datetime.strptime(in_, "%m-%d-%y %H:%M:%S")
+    out_ = datetime.strptime(out_, "%m-%d-%y %H:%M:%S")
+    
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+    # Duration
+    duration = out_ - in_
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+    # Parking type 
+    if in_.weekday() < 5 and 5 <= in_.hour < 10 and 14 <= out_.hour < 20:
+        parking_type = "Early Bird"
+    elif in_.hour >= 16 or (in_.hour == 0 and in_.minute > 0):
+        parking_type = "Night"
+    elif in_.weekday() >= 5:
+        parking_type = "Weekend"
+    else:
+        parking_type = "Casual"
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+    # Fare
+    fare = 0
+    if parking_type == "Casual":
+        if duration.total_seconds() / 60 <= 20:
+            fare = 3
+        elif duration.total_seconds() / 60 <= 60:
+            fare = 15
+        else:
+            fare = 15 + (duration.total_seconds() / 60 - 60) / 30 * 7.50
+            fare = min(fare, 55)
+    elif parking_type == "Early Bird":
+        fare = 15
+        if out_.hour > 20:
+            additional_duration = out_ - datetime(out_.year, out_.month, out_.day, 20, 0)
+            fare += (additional_duration.total_seconds() / 60) / 30 * 7.50
+    elif parking_type == "Night" or parking_type == "Weekend":
+        if duration.total_seconds() / 60 <= 20:
+            fare = 3
+        elif duration.total_seconds() / 60 <= 60:
+            fare = 15
+        else:
+            fare = 15
+            
+    # lost ticket fee
+    if in_.year != out_.year or in_.month != out_.month or in_.day != out_.day:
+        fare += 75
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+   
+    return fare
 
-# Translations
-*.mo
-*.pot
+def main():
+    in_ = input("Enter in-time in this format 08-20-23 22:30:15: ")
+    out_ = input("Enter out-time in this format 08-20-23 22:30:15: ")
+    if datetime.strptime(in_, "%m-%d-%y %H:%M:%S") > datetime.strptime(out_, "%m-%d-%y %H:%M:%S"):
+        print("Wrong date")
+    else:
+        in_time = datetime.strptime(in_, "%m-%d-%y %H:%M:%S")
+        out_time = datetime.strptime(out_, "%m-%d-%y %H:%M:%S")
+        fare = parking_fare(in_,out_)
+        print("your parking time is:",out_time - in_time)
+        print(f"Parking fare: ${round(fare, 2)}")
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+if __name__ == "__main__":
+    main()
 
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
